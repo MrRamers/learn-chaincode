@@ -19,7 +19,7 @@ package main
 import (
 	"errors"
 	"fmt"
-
+	"strconv"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -69,6 +69,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 // Agregado por mi
 func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
     var name, value string
+    var Ivalue int
     var err error
     fmt.Println("running write()")
 
@@ -78,6 +79,14 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
 
     name = args[0]                            //rename for fun
     value = args[1]
+    Ivalue, err = strconv.Atoi(value)
+    Ivalue -= 100
+    value= strconv.Itoa(Ivalue)
+    /*num, err = string(stub.GetState(name))
+    Ivalue, err = strconv.Atoi(value)
+    Inum, err = strconv.Atoi(num)*/
+    /*resta= Inum - Ivalue
+    value= strconv.Itoa(resta)*/
     err = stub.PutState(name, []byte(value))  //write the variable into the chaincode state
     if err != nil {
         return nil, err
