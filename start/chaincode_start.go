@@ -66,6 +66,8 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
         return t.write(stub, args)
     }else if function == "restar" {
         return t.restar(stub, args)
+    }else if function == "transferir" {
+        return t.transferir(stub, args)
     }
     fmt.Println("invoke did not find func: " + function)
 
