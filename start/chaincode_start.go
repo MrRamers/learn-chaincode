@@ -42,11 +42,12 @@ func main() {
 
 // Init resets all the things
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-    if len(args) != 1 {
+    if len(args) != 0 {
         return nil, errors.New("Incorrect number of arguments. Expecting 1")
     }
 
-    err := stub.PutState("RamiroPombo", []byte(args[0]))
+    err := stub.PutState("RamiroPombo", []byte("2000"))
+    err = stub.PutState("GonzaloVarilla", []byte("2000"))
     if err != nil {
         return nil, err
     }
@@ -72,6 +73,29 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 }
 
 //Agregado para el test
+func (t *SimpleChaincode) transferir(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var a1, a2 []string
+	var aux int
+	var err error
+	if len(args) != 3 {
+        return nil, errors.New("Incorrect number of arguments. Expecting name of the var to query")
+    }
+    a1[0]=args[0]
+    a1[1]=args[2]
+
+    a2[0]=args[1]
+    aux, err = strconv.Atoi(args[2])
+    aux *=-1
+    a2[1]=strconv.Itoa(aux)
+    t.restar(stub,a1)
+    t.restar(stub,a2)
+    if err != nil {
+        return nil, err
+    }
+    return nil, nil
+}
+
+
 func (t *SimpleChaincode) restar(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
     var name, jsonResp, valor string
     var Ivalor, sust int
