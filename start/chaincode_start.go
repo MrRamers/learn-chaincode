@@ -87,13 +87,14 @@ func (t *SimpleChaincode) restar(stub shim.ChaincodeStubInterface, args []string
     Ivalor, err = strconv.Atoi(valor)
     sust, err=strconv.Atoi(args[1])
     Ivalor -=sust
-    valAsbytes = []byte(strconv.Itoa(Ivalor))
+    valor= strconv.Itoa(Ivalor)
+    args[1]=valor
+    //valAsbytes = []byte(strconv.Itoa(Ivalor))
     if err != nil {
         jsonResp = "{\"Error\":\"Failed to get state for " + name + "\"}"
         return nil, errors.New(jsonResp)
     }
-
-    return valAsbytes, nil
+    return t.write(stub, args)
 }
 
 // Agregado por mi
