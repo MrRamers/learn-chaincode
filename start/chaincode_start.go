@@ -27,6 +27,9 @@ import (
 type SimpleChaincode struct {
 }
 
+/*type Persona struct {
+}*/
+
 // ============================================================================================================================
 // Main
 // ============================================================================================================================
@@ -66,10 +69,35 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
     return nil, errors.New("Received unknown function invocation")
 }
 
+//Agregado para el test
+func (t *SimpleChaincode) restar(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+    var name, jsonResp, valor string
+    var Ivalor, sust int
+    var err error
+
+    if len(args) != 2 {
+        return nil, errors.New("Incorrect number of arguments. Expecting name of the var to query")
+    }
+
+    name = args[0]
+    valAsbytes, err := stub.GetState(name)
+    valor = string(valAsbytes)
+    Ivalor, err = strconv.Atoi(valor)
+    sust, err=strconv.Atoi(args[1])
+    Ivalor -=sust
+    valAsbytes = []byte(strconv.Itoa(Ivalor))
+    if err != nil {
+        jsonResp = "{\"Error\":\"Failed to get state for " + name + "\"}"
+        return nil, errors.New(jsonResp)
+    }
+
+    return valAsbytes, nil
+}
+
 // Agregado por mi
 func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
     var name, value string
-    var Ivalue int
+    //var Ivalue int
     var err error
     fmt.Println("running write()")
 
@@ -79,9 +107,9 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
 
     name = args[0]                            //rename for fun
     value = args[1]
-    Ivalue, err = strconv.Atoi(value)
-    Ivalue -= 100
-    value= strconv.Itoa(Ivalue)
+    //Ivalue, err = strconv.Atoi(value)
+    //Ivalue -= 100
+    //value= strconv.Itoa(Ivalue)
     /*num, err = string(stub.GetState(name))
     Ivalue, err = strconv.Atoi(value)
     Inum, err = strconv.Atoi(num)*/
