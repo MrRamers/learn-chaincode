@@ -42,88 +42,139 @@ func main() {
 
 // Init resets all the things
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-    if len(args) != 0 {
-        return nil, errors.New("Incorrect number of arguments. Expecting 1")
-    }
+	fmt.Printf("Init called, initializing chaincode")
+	
+	var A, B string    // Entities
+	var Aval, Bval int // Asset holdings
+	var err error
 
-    err := stub.PutState("RamiroPombo", []byte("2000"))
-    err = stub.PutState("GonzaloVarilla", []byte("2000"))
-    if err != nil {
-        return nil, err
-    }
+	if len(args) != 4 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 4")
+	}
 
-    return nil, nil
+	// Initialize the chaincode
+	A = args[0]
+	Aval, err = strconv.Atoi(args[1])
+	if err != nil {
+		return nil, errors.New("Expecting integer value for asset holding")
+	}
+	B = args[2]
+	Bval, err = strconv.Atoi(args[3])
+	if err != nil {
+		return nil, errors.New("Expecting integer value for asset holding")
+	}
+	fmt.Printf("Aval = %d, Bval = %d\n", Aval, Bval)
+
+	// Write the state to the ledger
+	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
+	if err != nil {
+		return nil, err
+	}
+
+	err = stub.PutState(B, []byte(strconv.Itoa(Bval)))
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
+
+// Transaction makes payment of X units from A to B
+func (t *SimpleChaincode) invoke(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	fmt.Printf("Running invoke")
+	
+	var A, B string    // Entities
+	var Aval, Bval int // Asset holdings
+	var X int          // Transaction value
+	var err error
+
+	if len(args) != 3 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 3")
+	}
+
+	A = args[0]
+	B = args[1]
+
+	// Get the state from the ledger
+	// TODO: will be nice to have a GetAllState call to ledger
+	Avalbytes, err := stub.GetState(A)
+	if err != nil {
+		return nil, errors.New("Failed to get state")
+	}
+	if Avalbytes == nil {
+		return nil, errors.New("Entity not found")
+	}
+	Aval, _ = strconv.Atoi(string(Avalbytes))
+
+	Bvalbytes, err := stub.GetState(B)
+	if err != nil {
+		return nil, errors.New("Failed to get state")
+	}
+	if Bvalbytes == nil {
+		return nil, errors.New("Entity not found")
+	}
+	Bval, _ = strconv.Atoi(string(Bvalbytes))
+
+	// Perform the execution
+	X, err = strconv.Atoi(args[2])
+	Aval = Aval - X
+	Bval = Bval + X
+	fmt.Printf("Aval = %d, Bval = %d\n", Aval, Bval)
+
+	// Write the state back to the ledger
+	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
+	if err != nil {
+		return nil, err
+	}
+
+	err = stub.PutState(B, []byte(strconv.Itoa(Bval)))
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
+// Deletes an entity from state
+func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	fmt.Printf("Running delete")
+	
+	if len(args) != 1 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 3")
+	}
+
+	A := args[0]
+
+	// Delete the key from the state in ledger
+	err := stub.DelState(A)
+	if err != nil {
+		return nil, errors.New("Failed to delete state")
+	}
+
+	return nil, nil
 }
 
 // Invoke is our entry point to invoke a chaincode function
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-    fmt.Println("invoke is running " + function)
+	fmt.Printf("Invoke called, determining function")
+	
+	// Handle different functions
+	if function == "invoke" {
+		// Transaction makes payment of X units from A to B
+		fmt.Printf("Function is invoke")
+		return t.invoke(stub, args)
+	} else if function == "init" {
+		fmt.Printf("Function is init")
+		return t.Init(stub, function, args)
+	} else if function == "delete" {
+		// Deletes an entity from its state
+		fmt.Printf("Function is delete")
+		return t.delete(stub, args)
+	}
 
-    // Handle different functions
-    if function == "init" {
-        return t.Init(stub, "init", args)
-    } else if function == "write" {
-        return t.write(stub, args)
-    }else if function == "restar" {
-        return t.restar(stub, args)
-    }else if function == "transferir" {
-        return t.transferir(stub, args)
-    }
-    fmt.Println("invoke did not find func: " + function)
-
-    return nil, errors.New("Received unknown function invocation")
-}
-
-//Agregado para el test
-func (t *SimpleChaincode) transferir(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	var a1, a2 []string
-	var aux int
-	var err error
-	if len(args) != 3 {
-        return nil, errors.New("Incorrect number of arguments. Expecting name of the var to query")
-    }
-    a1[0]=args[0]
-    a1[1]=args[2]
-
-    a2[0]=args[1]
-    aux, err = strconv.Atoi(args[2])
-    aux *=-1
-    a2[1]=strconv.Itoa(aux)
-    t.restar(stub,a1)
-    t.restar(stub,a2)
-    if err != nil {
-        return nil, err
-    }
-    return nil, nil
+	return nil, errors.New("Received unknown function invocation")
 }
 
 
-func (t *SimpleChaincode) restar(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-    var name, jsonResp, valor string
-    var Ivalor, sust int
-    var err error
-
-    if len(args) != 2 {
-        return nil, errors.New("Incorrect number of arguments. Expecting name of the var to query")
-    }
-
-    name = args[0]
-    valAsbytes, err := stub.GetState(name)
-    valor = string(valAsbytes)
-    Ivalor, err = strconv.Atoi(valor)
-    sust, err=strconv.Atoi(args[1])
-    Ivalor -=sust
-    valor= strconv.Itoa(Ivalor)
-    args[1]=valor
-    //valAsbytes = []byte(strconv.Itoa(Ivalor))
-    if err != nil {
-        jsonResp = "{\"Error\":\"Failed to get state for " + name + "\"}"
-        return nil, errors.New(jsonResp)
-    }
-    return t.write(stub, args)
-}
-
-// Agregado por mi
 func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
     var name, value string
     //var Ivalue int
@@ -136,14 +187,6 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
 
     name = args[0]                            //rename for fun
     value = args[1]
-    //Ivalue, err = strconv.Atoi(value)
-    //Ivalue -= 100
-    //value= strconv.Itoa(Ivalue)
-    /*num, err = string(stub.GetState(name))
-    Ivalue, err = strconv.Atoi(value)
-    Inum, err = strconv.Atoi(num)*/
-    /*resta= Inum - Ivalue
-    value= strconv.Itoa(resta)*/
     err = stub.PutState(name, []byte(value))  //write the variable into the chaincode state
     if err != nil {
         return nil, err
