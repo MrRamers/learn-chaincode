@@ -51,13 +51,6 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	if len(args) != 4 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 4")
 	}
-
-<<<<<<< HEAD
-    err := stub.PutState("Gonzalo", []byte(args[0]))
-    if err != nil {
-        return nil, err
-    }
-=======
 	// Initialize the chaincode
 	A = args[0]
 	Aval, err = strconv.Atoi(args[1])
@@ -70,7 +63,6 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 		return nil, errors.New("Expecting integer value for asset holding")
 	}
 	fmt.Printf("Aval = %d, Bval = %d\n", Aval, Bval)
->>>>>>> 22ef44e73848761d5463aec14676fd06499b1cd2
 
 	// Write the state to the ledger
 	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
@@ -87,8 +79,8 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 }
 
 // Transaction makes payment of X units from A to B
-func (t *SimpleChaincode) invoke(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	fmt.Printf("Running invoke")
+func (t *SimpleChaincode) transaction(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	fmt.Printf("Running Transaction")
 	
 	var A, B string    // Entities
 	var Aval, Bval int // Asset holdings
@@ -165,10 +157,10 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	fmt.Printf("Invoke called, determining function")
 	
 	// Handle different functions
-	if function == "invoke" {
+	if function == "transaction" {
 		// Transaction makes payment of X units from A to B
-		fmt.Printf("Function is invoke")
-		return t.invoke(stub, args)
+		fmt.Printf("Function is Transaction")
+		return t.transaction(stub, args)
 	} else if function == "init" {
 		fmt.Printf("Function is init")
 		return t.Init(stub, function, args)
