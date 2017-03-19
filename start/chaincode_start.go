@@ -238,7 +238,19 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	} else if function == "delete" {
 		// Deletes an entity from its state
 		fmt.Printf("Function is delete")
-		return t.delete(stub, args)
+		return t.delete(stub, args)	
+	}else if function == "create" {
+		// Deletes an entity from its state
+		fmt.Printf("Function is create")
+		return t.create(stub, args)
+	}else if function == "setBet" {
+		// Deletes an entity from its state
+		fmt.Printf("Function is setBet")
+		return t.setBet(stub, args)
+	}else if function == "Bet" {
+		// Deletes an entity from its state
+		fmt.Printf("Function is Bet")
+		return t.Bet(stub, args)
 	}
 
 	return nil, errors.New("Received unknown function invocation")
