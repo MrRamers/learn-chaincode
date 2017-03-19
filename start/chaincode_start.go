@@ -27,8 +27,8 @@ import (
 type SimpleChaincode struct {
 }
 
-/*type Persona struct {
-}*/
+var Member1, Member2, Bet1, Bet2 string
+var win int
 
 // ============================================================================================================================
 // Main
@@ -133,6 +133,77 @@ func (t *SimpleChaincode) transaction(stub shim.ChaincodeStubInterface, args []s
 
 	return nil, nil
 }
+//set a Bet
+func (t *SimpleChaincode) setBet(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {    
+    //var Ivalue int
+    var err error
+    fmt.Println("running setBet")
+    if len(args) != 5 {
+        return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the variable and value to set")
+    }
+    Member1 = args[0]
+    Bet1 = args[1]
+    Member2 = args[2]
+    Bet2 = args[3]
+    win = args[4]
+
+    return nil, nil
+}
+
+func (t *SimpleChaincode) Bet(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+    var IBet1, IBet2, winner int
+    var a [3]string    
+    var err error
+    fmt.Println("running setBet")
+    if len(args) != 1 {
+        return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the variable and value to set")
+    }    
+
+    IBet1, err = strconv.Atoi(Bet1)
+    if err != nil {
+		return nil, errors.New("Failed")
+	}
+    IBet2, err = strconv.Atoi(Bet2)
+    if err != nil {
+		return nil, errors.New("Failed")
+	}
+    winner, err = strconv.Atoi(args[0])
+	if err != nil {
+		return nil, errors.New("Failed")
+	}
+	if (IBet1-winner)<(IBet2-winner){
+		a[0]= Member1
+		a[1]= Member2
+				
+	} else{
+		a[0]= Member2
+		a[1]= Member1
+	}
+
+	a[2]= win
+    
+    return t.transaction(stub, a)
+}
+// Create an entity from state
+func (t *SimpleChaincode) create(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+    var name, value string
+    //var Ivalue int
+    var err error
+    fmt.Println("running create")
+
+    if len(args) != 2 {
+        return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the variable and value to set")
+    }
+
+    name = args[0]                            //rename for fun
+    value = args[1]
+    err = stub.PutState(name, []byte(value))  //write the variable into the chaincode state
+    if err != nil {
+        return nil, err
+    }
+    return nil, nil
+}
+
 // Deletes an entity from state
 func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	fmt.Printf("Running delete")
@@ -192,6 +263,8 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
     }
     return nil, nil
 }
+
+
 
 
 // Query is our entry point for queries
