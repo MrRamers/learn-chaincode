@@ -27,8 +27,8 @@ import (
 type SimpleChaincode struct {
 }
 
-var Member1, Member2, Bet1, Bet2 string
-var win int
+var Member1, Member2, Bet1, Bet2, win string
+
 
 // ============================================================================================================================
 // Main
@@ -136,7 +136,7 @@ func (t *SimpleChaincode) transaction(stub shim.ChaincodeStubInterface, args []s
 //set a Bet
 func (t *SimpleChaincode) setBet(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {    
     //var Ivalue int
-    var err error
+    
     fmt.Println("running setBet")
     if len(args) != 5 {
         return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the variable and value to set")
@@ -152,7 +152,7 @@ func (t *SimpleChaincode) setBet(stub shim.ChaincodeStubInterface, args []string
 
 func (t *SimpleChaincode) Bet(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
     var IBet1, IBet2, winner int
-    var a [3]string    
+    var a []string    
     var err error
     fmt.Println("running setBet")
     if len(args) != 1 {
