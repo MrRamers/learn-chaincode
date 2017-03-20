@@ -181,7 +181,11 @@ func (t *SimpleChaincode) Bet(stub shim.ChaincodeStubInterface, args []string) (
 	}
 
 	a[2]= win 
-     return nil, nil
+
+    valAsbytes := []byte(Member1 +" "+ Member2 +" "+ Bet1 +" "+ Bet2 +" "+ win)
+   
+
+    return valAsbytes, nil
     //return t.transaction(stub, a)
 }
 // Create an entity from state
