@@ -154,7 +154,7 @@ func (t *SimpleChaincode) Bet(stub shim.ChaincodeStubInterface, args []string) (
     var IBet1, IBet2, winner int
     var a []string    
     var err error
-    fmt.Println("running setBet")
+    fmt.Println("running Bet")
     if len(args) != 1 {
         return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the variable and value to set")
     }    
