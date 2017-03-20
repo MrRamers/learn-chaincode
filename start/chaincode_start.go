@@ -286,11 +286,22 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
     // Handle different functions
     if function == "read" {                            //read a variable
         return t.read(stub, args)
+    }else if function == "readVar" {                            //read
+        return t.readVar(stub, args)
     }
     fmt.Println("query did not find func: " + function)
 
     return nil, errors.New("Received unknown function query")
 }
+
+func (t *SimpleChaincode) readVar(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+    
+    valAsbytes := []byte(Member1 +" "+ Member2 +" "+ Bet1 +" "+ Bet2 +" "+ win)
+   
+
+    return valAsbytes, nil
+}
+
 
 //Agregado por mi
 func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
