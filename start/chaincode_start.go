@@ -180,9 +180,9 @@ func (t *SimpleChaincode) Bet(stub shim.ChaincodeStubInterface, args []string) (
 		a[1]= Member1
 	}
 
-	a[2]= win
-    
-    return t.transaction(stub, a)
+	a[2]= win 
+     return nil, nil
+    //return t.transaction(stub, a)
 }
 // Create an entity from state
 func (t *SimpleChaincode) create(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
