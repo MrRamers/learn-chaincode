@@ -174,13 +174,26 @@ func (t *SimpleChaincode) Bet(stub shim.ChaincodeStubInterface, args []string) (
 	if err != nil {
 		return nil, errors.New("Failed")
 	}
-	if (IBet1-winner)<(IBet2-winner){
-		A= Member1
-		B= Member2
-				
-	} else{
+
+	IBet1-=winner
+	if IBet1<0{
+		IBet1= -IBet1
+	} 
+
+	IBet2-=winner
+	if IBet2<0{
+		IBet2= -IBet2
+	} 
+
+	if IBet1 < IBet2{
 		A= Member2
 		B= Member1
+				
+	} else if IBet1 > IBet2{
+		A= Member1
+		B= Member2
+	}else{
+		return nil, errors.New("No Winner")
 	}
 
 
@@ -220,6 +233,7 @@ func (t *SimpleChaincode) Bet(stub shim.ChaincodeStubInterface, args []string) (
 	if err != nil {
 		return nil, err
 	}
+
 
 	return nil, nil
 
