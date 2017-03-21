@@ -152,8 +152,11 @@ func (t *SimpleChaincode) setBet(stub shim.ChaincodeStubInterface, args []string
 
 func (t *SimpleChaincode) Bet(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
     var IBet1, IBet2, winner int
-    var a []string    
     var err error
+    var A, B string    // Entities
+	var Aval, Bval int // Asset holdings
+	var X int          // Transaction value
+
     fmt.Println("running Bet")
     if len(args) != 1 {
         return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the variable and value to set")
@@ -172,20 +175,55 @@ func (t *SimpleChaincode) Bet(stub shim.ChaincodeStubInterface, args []string) (
 		return nil, errors.New("Failed")
 	}
 	if (IBet1-winner)<(IBet2-winner){
-		a[0]= Member1
-		a[1]= Member2
+		A= Member1
+		B= Member2
 				
 	} else{
-		a[0]= Member2
-		a[1]= Member1
+		A= Member2
+		B= Member1
 	}
 
-	a[2]= win 
 
-    valAsbytes := []byte(Member1 +" "+ Member2 +" "+ Bet1 +" "+ Bet2 +" "+ win)
-   
+	// Get the state from the ledger
+	// TODO: will be nice to have a GetAllState call to ledger
+	Avalbytes, err := stub.GetState(A)
+	if err != nil {
+		return nil, errors.New("Failed to get state")
+	}
+	if Avalbytes == nil {
+		return nil, errors.New("Entity not found")
+	}
+	Aval, _ = strconv.Atoi(string(Avalbytes))
 
-    return valAsbytes, nil
+	Bvalbytes, err := stub.GetState(B)
+	if err != nil {
+		return nil, errors.New("Failed to get state")
+	}
+	if Bvalbytes == nil {
+		return nil, errors.New("Entity not found")
+	}
+	Bval, _ = strconv.Atoi(string(Bvalbytes))
+
+	// Perform the execution
+	X, err = strconv.Atoi(win)
+	Aval = Aval - X
+	Bval = Bval + X
+	fmt.Printf("Aval = %d, Bval = %d\n", Aval, Bval)
+
+	// Write the state back to the ledger
+	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
+	if err != nil {
+		return nil, err
+	}
+
+	err = stub.PutState(B, []byte(strconv.Itoa(Bval)))
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+
+
     //return t.transaction(stub, a)
 }
 // Create an entity from state
