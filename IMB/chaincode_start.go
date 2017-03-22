@@ -116,7 +116,7 @@ func (t *SimpleChaincode) createCuenta(stub shim.ChaincodeStubInterface, args []
     IM = IMBS[nameI]
     P1 = IM.Clientes[nameC]
     P1.Cuentas[P1.ID]=0
-    P1.ID++
+    //P1.ID++
 
     return nil, nil
 }
