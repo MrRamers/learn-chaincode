@@ -116,58 +116,83 @@ func (t *SimpleChaincode) createCuenta(stub shim.ChaincodeStubInterface, args []
     IM = IMBS[nameI]
     P1 = IM.Clientes[nameC]
     P1.Cuentas[P1.ID]=0
+    P1.ID++
 
     return nil, nil
 }
 
-func (t *SimpleChaincode) LeerPer(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-    var nameI, nameC, val string
+func (t *SimpleChaincode) acreditarCuentaCliente(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+ 	var nameI, nameC string
+ 	var nameA, value int
     var IM IMB
     var P1 Per
+    var err error
 
-    if len(args) != 2 {
+    fmt.Println("running acreditarCuentaCliente")
+
+    if len(args) != 4 {
         return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the variable and value to set")
     }
 
     nameI = args[0]
     nameC = args[1]
+    nameA, err = strconv.Atoi(args[2])
+    value, err = strconv.Atoi(args[3])
+		
+	if err != nil {
+		return nil, errors.New("Failed to get int")
+	}
 
     IM = IMBS[nameI]
     P1 = IM.Clientes[nameC]
-    val= nameC
-    for k := range P1.Cuentas {
-    	val= val + " ID: " +  strconv.Itoa(k) + " Monto: " +   strconv.Itoa(P1.Cuentas[k])
-	}
- 
-    valAsbytes := []byte(val)
-   
 
-    return valAsbytes, nil
+    P1.Cuentas[nameA]+=value
+
+    return nil, nil
 }
 
-
-
-
-
-
-// Deletes an entity from state
-func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	fmt.Printf("Running delete")
+func (t *SimpleChaincode) transaction(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	fmt.Printf("Running Transaction")
 	
-	if len(args) != 1 {
+ 	var nameI1, nameI2, nameC1, nameC2 string
+ 	var nameA1,nameA2, value  int
+    var IM IMB
+    var P1, P2 Per
+    var err error
+
+	if len(args) != 7 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 3")
 	}
 
-	A := args[0]
 
-	// Delete the key from the state in ledger
-	err := stub.DelState(A)
-	if err != nil {
-		return nil, errors.New("Failed to delete state")
+    nameI1 = args[0]
+    nameC1 = args[1]
+    nameA1, err = strconv.Atoi(args[2])
+
+    IM = IMBS[nameI1]
+    P1 = IM.Clientes[nameC1]
+
+	nameI2 = args[3]
+    nameC2 = args[4]
+    nameA2, err = strconv.Atoi(args[5])
+
+
+    IM = IMBS[nameI2]
+    P2 = IM.Clientes[nameC2]
+
+    value, err = strconv.Atoi(args[6])
+
+    if err != nil {
+		return nil, errors.New("Failed to get int")
 	}
+
+	P1.Cuentas[nameA1]-=value
+	P2.Cuentas[nameA2]+=value
 
 	return nil, nil
 }
+
+
 
 // Invoke is our entry point to invoke a chaincode function
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
@@ -186,6 +211,12 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	}else if function == "createCuenta" {
 		fmt.Printf("Function is createCuenta")
 		return t.createCuenta(stub,  args)
+	}else if function == "acreditarCuentaCliente" {
+		fmt.Printf("Function is acreditarCuentaCliente")
+		return t.acreditarCuentaCliente(stub,  args)
+	}else if function == "transaction" {
+		fmt.Printf("Function is transaction")
+		return t.transaction(stub,  args)
 	}
 
 
@@ -218,24 +249,32 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 }
 
 
-func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-    var name, value string
-    //var Ivalue int
-    var err error
-    fmt.Println("running write()")
+
+func (t *SimpleChaincode) LeerPer(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+    var nameI, nameC, val string
+    var IM IMB
+    var P1 Per
 
     if len(args) != 2 {
         return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the variable and value to set")
     }
 
-    name = args[0]                            //rename for fun
-    value = args[1]
-    err = stub.PutState(name, []byte(value))  //write the variable into the chaincode state
-    if err != nil {
-        return nil, err
-    }
-    return nil, nil
+    nameI = args[0]
+    nameC = args[1]
+
+    IM = IMBS[nameI]
+    P1 = IM.Clientes[nameC]
+    val= nameC
+    for k := range P1.Cuentas {
+    	val= val + " ID: " +  strconv.Itoa(k) + " Monto: " +   strconv.Itoa(P1.Cuentas[k])
+	}
+ 
+    valAsbytes := []byte(val)
+   
+
+    return valAsbytes, nil
 }
+
 
 
 
