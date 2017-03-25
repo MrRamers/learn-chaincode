@@ -16,7 +16,7 @@ limitations under the License.
 
 package main
 
-import (	
+import (
 	"errors"
 	"fmt"
 	"strconv"
@@ -26,17 +26,35 @@ import (
 // SimpleChaincode example simple Chaincode implementation
 type SimpleChaincode struct {
 }
+
 type Per struct{
 	ID int
  	Cuentas map[int]int
 }
-
 type IMB struct{
 	name string 
 	Clientes map[string]Per
 }
 
 var IMBS map[string]IMB
+
+
+type Adress struct{
+	Banco string 
+	Cliente string
+	Cuenta string
+}
+
+type SmartContract struct{
+	ID int
+	Origen Adress
+	Destino Adress
+	Estado string
+	Monto string
+	Mensaje string
+}
+var SCs map[int]SmartContract
+var SCID int
 
 var Member1, Member2, Bet1, Bet2, win string
 
@@ -49,7 +67,6 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error starting Simple chaincode: %s", err)
 	}
-
 }
 
 // Init resets all the things
@@ -62,11 +79,78 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	}
 
 	IMBS = make(map[string]IMB)
+	SCs = make(map[int]SmartContract)
+	SCID=0
 
-	
 	return nil, nil
 }
 
+
+func (t *SimpleChaincode) createSC(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+    var nameI1, nameI2, nameC1, nameC2,nameA1,nameA2, monto, mensaje string 	
+    var A1, A2 Adress   
+
+	fmt.Println("running createSC")
+
+	if len(args) != 8 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 3")
+	}
+
+
+    nameI1 = args[0]
+    nameC1 = args[1]
+    nameA1 = args[2]
+    A1=Adress{nameI1,nameC1,nameA1}
+
+	nameI2 = args[3]
+    nameC2 = args[4]
+    nameA2 = args[5]
+    A2=Adress{nameI2,nameC2,nameA2}
+
+    monto = args[6]
+    mensaje = args[7]
+                            
+
+    SCs[SCID]= SmartContract{SCID,A1,A2,"En Proceso",monto,mensaje}
+	SCID+=1
+
+    return nil, nil
+}
+
+func (t *SimpleChaincode) exjecutarSC(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {  
+    var A []string
+
+
+	fmt.Println("running createSC")
+
+	if len(args) != 1 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 3")
+	}
+
+	ID, err:= strconv.Atoi(args[0])
+	if err != nil {
+		return nil, errors.New("Failed to get SmartContract")
+	}
+	SC := SCs[ID]
+
+    A[0] = SC.Origen.Banco
+    A[1] = SC.Origen.Cliente
+    A[2] = SC.Origen.Cuenta
+    
+
+	A[3] = SC.Destino.Banco
+    A[4] = SC.Destino.Cliente
+    A[5] = SC.Destino.Cuenta
+    
+
+    A[6] = SC.Monto
+    
+    t.transaction(stub,A)
+    SC.Estado="Finalizado"                            
+	
+
+    return nil, nil
+}
 
 func (t *SimpleChaincode) createIMB(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
     var name string
@@ -220,33 +304,6 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		fmt.Printf("Function is transaction")
 		return t.transaction(stub,  args)
 	}
-
-
-	/*if function == "transaction" {
-		// Transaction makes payment of X units from A to B
-		fmt.Printf("Function is Transaction")
-		return t.transaction(stub, args)
-	} else if function == "init" {
-		fmt.Printf("Function is init")
-		return t.Init(stub, function, args)
-	} else if function == "delete" {
-		// Deletes an entity from its state
-		fmt.Printf("Function is delete")
-		return t.delete(stub, args)	
-	}else if function == "create" {
-		// Deletes an entity from its state
-		fmt.Printf("Function is create")
-		return t.create(stub, args)
-	}else if function == "setBet" {
-		// Deletes an entity from its state
-		fmt.Printf("Function is setBet")
-		return t.setBet(stub, args)
-	}else if function == "Bet" {
-		// Deletes an entity from its state
-		fmt.Printf("Function is Bet")
-		return t.Bet(stub, args)
-	}*/
-
 	return nil, errors.New("Received unknown function invocation")
 }
 
@@ -277,8 +334,39 @@ func (t *SimpleChaincode) LeerPer(stub shim.ChaincodeStubInterface, args []strin
     return valAsbytes, nil
 }
 
+func (t *SimpleChaincode) LeerSC(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+    var  val string
 
+    if len(args) != 1 {
+        return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the variable and value to set")
+    }
 
+	ID, err:= strconv.Atoi(args[0])
+	if err != nil {
+		return nil, errors.New("Failed to get SmartContract")
+	}
+    SC := SCs[ID]
+
+    val = "ID: " + args[0]
+    val = val + " Banco Origen: " + SC.Origen.Banco
+    val = val + " Cliente Origen: " +SC.Origen.Cliente
+    val = val + " Cuenta Origen: " +SC.Origen.Cuenta 
+
+	val = val + " Banco Destino: " +SC.Destino.Banco
+    val = val + " Cliente Destino: " +SC.Destino.Cliente
+    val = val + " Cuenta Destino: " +SC.Destino.Cuenta  
+
+   	val = val + " Monto: " +SC.Monto
+
+   	val = val + " Estado: " +SC.Estado
+
+   	val = val + " Mensaje: " +SC.Mensaje
+
+    valAsbytes := []byte(val)
+   
+
+    return valAsbytes, nil
+}
 
 
 // Query is our entry point for queries
@@ -288,8 +376,8 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 	if function == "LeerPer" {                            //read a variable
         return t.LeerPer(stub, args)
-    }else if function == "demo" {                            //read
-        return demo(), nil
+    }else if function == "LeerSC" {                            //read
+        return t.LeerSC(stub, args)
     }
     // Handle different functions
     /*if function == "read" {                            //read a variable
@@ -302,30 +390,3 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
     return nil, errors.New("Received unknown function query")
 }
 
-func (t *SimpleChaincode) readVar(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-    
-    valAsbytes := []byte(Member1 +" "+ Member2 +" "+ Bet1 +" "+ Bet2 +" "+ win)
-   
-
-    return valAsbytes, nil
-}
-
-
-//Agregado por mi
-func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-    var name, jsonResp string
-    var err error
-
-    if len(args) != 1 {
-        return nil, errors.New("Incorrect number of arguments. Expecting name of the var to query")
-    }
-
-    name = args[0]
-    valAsbytes, err := stub.GetState(name)
-    if err != nil {
-        jsonResp = "{\"Error\":\"Failed to get state for " + name + "\"}"
-        return nil, errors.New(jsonResp)
-    }
-
-    return valAsbytes, nil
-}
