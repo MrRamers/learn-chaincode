@@ -16,7 +16,7 @@ limitations under the License.
 
 package main
 
-import (
+import (	
 	"errors"
 	"fmt"
 	"strconv"
@@ -49,6 +49,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error starting Simple chaincode: %s", err)
 	}
+
 }
 
 // Init resets all the things
@@ -56,12 +57,13 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	fmt.Printf("Init called, initializing chaincode")
 	
 
-	if len(args) != 0 {
+	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 4")
 	}
 
 	IMBS = make(map[string]IMB)
 
+	demo(args)
 	return nil, nil
 }
 
