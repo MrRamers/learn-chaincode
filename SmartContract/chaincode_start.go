@@ -57,13 +57,13 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	fmt.Printf("Init called, initializing chaincode")
 	
 
-	if len(args) != 1 {
+	if len(args) != 0 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 4")
 	}
 
 	IMBS = make(map[string]IMB)
 
-	demo(args)
+	
 	return nil, nil
 }
 
@@ -288,6 +288,8 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 	if function == "LeerPer" {                            //read a variable
         return t.LeerPer(stub, args)
+    }else if function == "demo" {                            //read
+        return demo(), nil
     }
     // Handle different functions
     /*if function == "read" {                            //read a variable

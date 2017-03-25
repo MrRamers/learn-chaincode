@@ -1,8 +1,10 @@
 package main
 
 import (	
-	"fmt"
+	//"fmt"
 )
-func demo(args []string) {
-    fmt.Println(args[0])
+func demo() []byte{
+	 valAsbytes := []byte("Hola")
+	return  valAsbytes 
+    //fmt.Println(args[0])
 }
