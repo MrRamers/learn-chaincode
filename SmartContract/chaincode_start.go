@@ -99,11 +99,8 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	valAsbytes := []byte(strconv.Itoa(P1.ID))
-   
-
-    return valAsbytes, nil
-	//return nil, nil
+	      
+	return nil, nil
 }
 
 
@@ -385,6 +382,8 @@ func (t *SimpleChaincode) LeerPer(stub shim.ChaincodeStubInterface, args []strin
     for k := range P1.Cuentas {
     	val= val + " ID: " +  strconv.Itoa(k) + " Monto: " +   strconv.Itoa(P1.Cuentas[k])
 	}
+
+	val = strconv.Itoa(P1.ID) +"-----"+ val
  
     valAsbytes := []byte(val)
    
