@@ -28,9 +28,10 @@ type SimpleChaincode struct {
 }
 
 type Per struct{
-	ID int
+	
  	Cuentas map[int]int
 }
+var IDPer int
 type IMB struct{
 	name string 
 	Clientes map[string]Per
@@ -70,10 +71,6 @@ func main() {
 }
 
 
-func (p *Per) Aumentar(){
-	p.ID++
-}
-
 
 // Init resets all the things
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
@@ -88,20 +85,22 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	SCs = make(map[int]SmartContract)
 	SCID=0
 
+	IDPer=0
+
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	IMBS["HSBC"]= IMB{"HSBC", make(map[string]Per)}
 
-	IMBS["HSBC"].Clientes["Gonzalo"]=Per{2, make(map[int]int)}
+	IMBS["HSBC"].Clientes["Gonzalo"]=Per{make(map[int]int)}
 	IM := IMBS["HSBC"]
     P1 := IM.Clientes["Gonzalo"]
-    P1.Cuentas[P1.ID]=2000
-    //P1.SetID(1)
+    P1.Cuentas[IDPer]=2000
+    IDPer++
 
-	IMBS["HSBC"].Clientes["Ramiro"]=Per{1, make(map[int]int)}
+	IMBS["HSBC"].Clientes["Ramiro"]=Per{make(map[int]int)}
     P1 = IM.Clientes["Ramiro"]
-    P1.Cuentas[P1.ID]=1000
-    //P1.Aumentar()
+    P1.Cuentas[IDPer]=1000
+    IDPer++
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -220,7 +219,7 @@ func (t *SimpleChaincode) createCli(stub shim.ChaincodeStubInterface, args []str
     nameI = args[0]
     nameC = args[1]                            
     IM =IMBS[nameI]
-    IM.Clientes[nameC]=Per{0, make(map[int]int)}
+    IM.Clientes[nameC]=Per{make(map[int]int)}
 
     return nil, nil
 }
@@ -241,8 +240,8 @@ func (t *SimpleChaincode) createCuenta(stub shim.ChaincodeStubInterface, args []
 
     IM = IMBS[nameI]
     P1 = IM.Clientes[nameC]
-    P1.Cuentas[P1.ID]=0
-    P1.ID+=1
+    P1.Cuentas[IDPer]=0
+    IDPer++
 
     return nil, nil
 }
@@ -375,7 +374,7 @@ func (t *SimpleChaincode) LeerPer(stub shim.ChaincodeStubInterface, args []strin
     	val= val + " ID: " +  strconv.Itoa(k) + " Monto: " +   strconv.Itoa(P1.Cuentas[k])
 	}
 
-	val = strconv.Itoa(P1.ID) +"-----"+ val
+	//val = strconv.Itoa(P1.ID) +"-----"+ val
  
     valAsbytes := []byte(val)
    
@@ -396,20 +395,20 @@ func (t *SimpleChaincode) LeerSC(stub shim.ChaincodeStubInterface, args []string
 	}
     SC := SCs[ID]
 
-    val = "ID: " + args[0]
-    val = val + " Banco Origen: " + SC.Origen.Banco
-    val = val + " Cliente Origen: " +SC.Origen.Cliente
-    val = val + " Cuenta Origen: " +SC.Origen.Cuenta 
+    val = "ID: " + args[0] + "`"
+    val = val + " Banco Origen: " + SC.Origen.Banco + "`"
+    val = val + " Cliente Origen: " +SC.Origen.Cliente + "`"
+    val = val + " Cuenta Origen: " +SC.Origen.Cuenta + "`"
 
-	val = val + " Banco Destino: " +SC.Destino.Banco
-    val = val + " Cliente Destino: " +SC.Destino.Cliente
-    val = val + " Cuenta Destino: " +SC.Destino.Cuenta  
+	val = val + " Banco Destino: " +SC.Destino.Banco+ "`"
+    val = val + " Cliente Destino: " +SC.Destino.Cliente+ "`"
+    val = val + " Cuenta Destino: " +SC.Destino.Cuenta  + "`"
 
-   	val = val + " Monto: " +SC.Monto
+   	val = val + " Monto: " +SC.Monto+ "`"
 
-   	val = val + " Estado: " +SC.Estado
+   	val = val + " Estado: " +SC.Estado+ "`"
 
-   	val = val + " Mensaje: " +SC.Mensaje
+   	val = val + " Mensaje: " +SC.Mensaje+ "`"
 
     valAsbytes := []byte(val)
    
