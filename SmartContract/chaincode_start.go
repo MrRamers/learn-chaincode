@@ -82,6 +82,24 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	SCs = make(map[int]SmartContract)
 	SCID=0
 
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	IMBS["HSBC"]= IMB{"HSBC", make(map[string]Per)}
+
+	IMBS["HSBC"].Clientes["Gonzalo"]=Per{0, make(map[int]int)}
+	IM := IMBS["HSBC"]
+    P1 := IM.Clientes["Gonzalo"]
+    P1.Cuentas[P1.ID]=2000
+    P1.ID+=1
+
+	IMBS["HSBC"].Clientes["Ramiro"]=Per{0, make(map[int]int)}
+    P1 = IM.Clientes["Ramiro"]
+    P1.Cuentas[P1.ID]=1000
+    P1.ID+=1
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 	return nil, nil
 }
 
@@ -302,8 +320,15 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.acreditarCuentaCliente(stub,  args)
 	}else if function == "transaction" {
 		fmt.Printf("Function is transaction")
-		return t.transaction(stub,  args)
+		return t.transaction(stub,  args)		
+	}else if function == "createSC" {
+		fmt.Printf("Function is createSC")
+		return t.createSC(stub,  args)
+	}else if function == "exjecutarSC" {
+		fmt.Printf("Function is exjecutarSC")
+		return t.exjecutarSC(stub,  args)
 	}
+
 	return nil, errors.New("Received unknown function invocation")
 }
 
