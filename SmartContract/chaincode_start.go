@@ -99,8 +99,11 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+	valAsbytes := []byte(strconv.Itoa(P1.ID))
+   
 
-	return nil, nil
+    return valAsbytes, nil
+	//return nil, nil
 }
 
 
