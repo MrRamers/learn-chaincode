@@ -69,6 +69,12 @@ func main() {
 	}
 }
 
+
+func (p *Per) Aumentar(){
+	p.ID++
+}
+
+
 // Init resets all the things
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Printf("Init called, initializing chaincode")
@@ -90,12 +96,12 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	IM := IMBS["HSBC"]
     P1 := IM.Clientes["Gonzalo"]
     P1.Cuentas[P1.ID]=2000
-    P1.ID+=1
+    P1.Aumentar()
 
 	IMBS["HSBC"].Clientes["Ramiro"]=Per{0, make(map[int]int)}
     P1 = IM.Clientes["Ramiro"]
     P1.Cuentas[P1.ID]=1000
-    P1.ID+=1
+    P1.Aumentar()
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -155,18 +161,6 @@ func (t *SimpleChaincode) exjecutarSC(stub shim.ChaincodeStubInterface, args []s
 		return nil, errors.New("Failed to get SmartContract")
 	}
 	SC := SCs[ID]
-	/*
-    A[0] = SC.Origen.Banco
-    A[1] = SC.Origen.Cliente
-    A[2] = SC.Origen.Cuenta
-    
-
-	A[3] = SC.Destino.Banco
-    A[4] = SC.Destino.Cliente
-    A[5] = SC.Destino.Cuenta
-    
-
-    A[6] = SC.Monto*/
     
     nameI1 = SC.Origen.Banco
     nameC1 = SC.Origen.Cliente
@@ -192,8 +186,6 @@ func (t *SimpleChaincode) exjecutarSC(stub shim.ChaincodeStubInterface, args []s
 	P1.Cuentas[nameA1]-=value
 	P2.Cuentas[nameA2]+=value
 
-	//return nil, nil
-    //t.transaction(stub,A)
     SC.Estado="Finalizado"                            
 	
 
