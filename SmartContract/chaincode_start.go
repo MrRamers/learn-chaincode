@@ -136,7 +136,12 @@ func (t *SimpleChaincode) createSC(stub shim.ChaincodeStubInterface, args []stri
 }
 
 func (t *SimpleChaincode) exjecutarSC(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {  
-    var A []string
+    //var A []string
+    var nameI1, nameI2, nameC1, nameC2 string
+ 	var nameA1,nameA2, value  int
+    var IM IMB
+    var P1, P2 Per
+    var err error
 
 
 	fmt.Println("running createSC")
@@ -150,7 +155,7 @@ func (t *SimpleChaincode) exjecutarSC(stub shim.ChaincodeStubInterface, args []s
 		return nil, errors.New("Failed to get SmartContract")
 	}
 	SC := SCs[ID]
-
+	/*
     A[0] = SC.Origen.Banco
     A[1] = SC.Origen.Cliente
     A[2] = SC.Origen.Cuenta
@@ -161,9 +166,34 @@ func (t *SimpleChaincode) exjecutarSC(stub shim.ChaincodeStubInterface, args []s
     A[5] = SC.Destino.Cuenta
     
 
-    A[6] = SC.Monto
+    A[6] = SC.Monto*/
     
-    t.transaction(stub,A)
+    nameI1 = SC.Origen.Banco
+    nameC1 = SC.Origen.Cliente
+    nameA1, err = strconv.Atoi(SC.Origen.Cuenta)
+
+    IM = IMBS[nameI1]
+    P1 = IM.Clientes[nameC1]
+
+	nameI2 = SC.Destino.Banco
+    nameC2 = SC.Destino.Cliente
+    nameA2, err = strconv.Atoi(SC.Destino.Cuenta)
+
+
+    IM = IMBS[nameI2]
+    P2 = IM.Clientes[nameC2]
+
+    value, err = strconv.Atoi(SC.Monto)
+
+    if err != nil {
+		return nil, errors.New("Failed to get int")
+	}
+
+	P1.Cuentas[nameA1]-=value
+	P2.Cuentas[nameA2]+=value
+
+	//return nil, nil
+    //t.transaction(stub,A)
     SC.Estado="Finalizado"                            
 	
 
