@@ -395,20 +395,21 @@ func (t *SimpleChaincode) LeerSC(stub shim.ChaincodeStubInterface, args []string
 	}
     SC := SCs[ID]
 
-    val = "ID: " + args[0] + "`"
-    val = val + " Banco Origen: " + SC.Origen.Banco + "`"
-    val = val + " Cliente Origen: " +SC.Origen.Cliente + "`"
-    val = val + " Cuenta Origen: " +SC.Origen.Cuenta + "`"
+    val = "ID: " + args[0] + "\n"
+    
+    val = val + " Banco Origen: " + SC.Origen.Banco + "\n"
+    val = val + " Cliente Origen: " +SC.Origen.Cliente + "\n"
+    val = val + " Cuenta Origen: " +SC.Origen.Cuenta + "\n"
 
-	val = val + " Banco Destino: " +SC.Destino.Banco+ "`"
-    val = val + " Cliente Destino: " +SC.Destino.Cliente+ "`"
-    val = val + " Cuenta Destino: " +SC.Destino.Cuenta  + "`"
+	val = val + " Banco Destino: " +SC.Destino.Banco+ "\n"
+    val = val + " Cliente Destino: " +SC.Destino.Cliente+ "\n"
+    val = val + " Cuenta Destino: " +SC.Destino.Cuenta  + "\n"
 
-   	val = val + " Monto: " +SC.Monto+ "`"
+   	val = val + " Monto: " +SC.Monto+ "\n"
 
-   	val = val + " Estado: " +SC.Estado+ "`"
+   	val = val + " Estado: " +SC.Estado+ "\n"
 
-   	val = val + " Mensaje: " +SC.Mensaje+ "`"
+   	val = val + " Mensaje: " +SC.Mensaje+ "\n"
 
     valAsbytes := []byte(val)
    
